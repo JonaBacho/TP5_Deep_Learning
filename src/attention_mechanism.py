@@ -131,9 +131,12 @@ def build_gru_attention_model(seq_length, feature_dim, hidden_units=64, num_clas
     x = layers.Dropout(0.3)(x)
     outputs = layers.Dense(num_classes, activation='softmax', name='classification_output')(x)
     
-    model = keras.Model(inputs=inputs, outputs=[outputs, attention_weights])
-    
-    return model
+    model = keras.Model(inputs=inputs, outputs=outputs)
+
+    # Modèle séparé pour visualiser l'attention
+    attention_model = keras.Model(inputs=inputs, outputs=attention_weights)
+
+    return model, attention_model
 
 
 def generate_synthetic_sequence_data(num_samples=1000, seq_length=50, feature_dim=10, num_classes=3):
@@ -229,7 +232,7 @@ def exercise_1_basic_attention():
         
         # Build model
         print("\nBuilding GRU + Attention model...")
-        model = build_gru_attention_model(
+        model, attention_model = build_gru_attention_model(
             seq_length=50,
             feature_dim=10,
             hidden_units=64,
@@ -238,11 +241,8 @@ def exercise_1_basic_attention():
         
         model.compile(
             optimizer=keras.optimizers.Adam(learning_rate=1e-3),
-            loss={
-                'classification_output': 'categorical_crossentropy',
-                'attention_layer': None 
-            },
-            metrics={'classification_output': 'accuracy'}
+            loss='categorical_crossentropy',
+            metrics=['accuracy']
         )
         
         model.summary()
@@ -263,6 +263,8 @@ def exercise_1_basic_attention():
             validation_split=0.2,
             verbose=1
         )
+
+        attention_weights = attention_model.predict(X_test)
         
         # Log metrics
         for epoch in range(len(history.history['loss'])):
