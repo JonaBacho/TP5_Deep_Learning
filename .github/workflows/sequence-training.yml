@@ -145,6 +145,7 @@ jobs:
         MLFLOW_S3_IGNORE_TLS: true
         AWS_S3_ADDRESSING_STYLE: path
         MODEL_NAME: ${{ env.MODEL_NAME }}
+        PYTHONPATH: .
       run: |
         python src/lstm_attention_seq2seq.py | tee exercise2_output.txt
     
@@ -209,6 +210,7 @@ jobs:
         MLFLOW_S3_IGNORE_TLS: true
         AWS_S3_ADDRESSING_STYLE: path
         MODEL_NAME: ${{ env.MODEL_NAME }}
+        PYTHONPATH: .
       run: |
         python src/tap_improvement.py | tee exercise3_output.txt
     

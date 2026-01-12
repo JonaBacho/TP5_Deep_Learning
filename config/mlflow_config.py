@@ -12,7 +12,7 @@ class MLflowConfig:
     TRACKING_PASSWORD = os.getenv("MLFLOW_TRACKING_PASSWORD")
     
     # Nom du modèle enregistré dans le Registry
-    MODEL_NAME = os.getenv("MODEL_NAME", "mnist-classifier")
+    MODEL_NAME = os.getenv("MODEL_NAME", "sequence_model")
     
     # Seuils de promotion automatique
     MIN_ACCURACY = float(os.getenv("MIN_ACCURACY", "0.95"))

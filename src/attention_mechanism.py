@@ -129,7 +129,7 @@ def build_gru_attention_model(seq_length, feature_dim, hidden_units=64, num_clas
     # Classification head
     x = layers.Dense(64, activation='relu')(context_vector)
     x = layers.Dropout(0.3)(x)
-    outputs = layers.Dense(num_classes, activation='softmax')(x)
+    outputs = layers.Dense(num_classes, activation='softmax', name='classification_output')(x)
     
     model = keras.Model(inputs=inputs, outputs=[outputs, attention_weights])
     
@@ -238,8 +238,11 @@ def exercise_1_basic_attention():
         
         model.compile(
             optimizer=keras.optimizers.Adam(learning_rate=1e-3),
-            loss={'dense_1': 'categorical_crossentropy'},
-            metrics={'dense_1': 'accuracy'}
+            loss={
+                'classification_output': 'categorical_crossentropy',
+                'attention_layer': None 
+            },
+            metrics={'classification_output': 'accuracy'}
         )
         
         model.summary()
@@ -254,7 +257,7 @@ def exercise_1_basic_attention():
         print("="*60)
         
         history = model.fit(
-            X_train, [y_train, np.zeros((len(X_train), 50))],  # Dummy for attention weights
+            X_train, y_train,
             batch_size=32,
             epochs=20,
             validation_split=0.2,
