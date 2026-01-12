@@ -1,0 +1,362 @@
+name: TP5 - Sequence Modeling & Attention Training
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'src/attention_mechanism.py'
+      - 'src/lstm_attention_seq2seq.py'
+      - 'src/tap_improvement.py'
+      - 'requirements.txt'
+      - '.github/workflows/tp5-sequence-training.yml'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      exercise:
+        description: 'Which exercise to run'
+        required: false
+        type: choice
+        options:
+          - all
+          - exercise1
+          - exercise2
+          - exercise3
+        default: 'all'
+
+env:
+  MODEL_NAME: sequence-attention-model
+  PYTHON_VERSION: "3.10"
+
+jobs:
+  exercise1-basic-attention:
+    name: Exercise 1 - Basic Attention
+    runs-on: ubuntu-latest
+    if: github.event.inputs.exercise == 'exercise1' || github.event.inputs.exercise == 'all' || github.event.inputs.exercise == ''
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Create .env file
+      run: |
+        echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env
+        echo "MLFLOW_TRACKING_USERNAME=${{ secrets.MLFLOW_TRACKING_USERNAME }}" >> .env
+        echo "MLFLOW_TRACKING_PASSWORD=${{ secrets.MLFLOW_TRACKING_PASSWORD }}" >> .env
+        echo "MODEL_NAME=${{ env.MODEL_NAME }}" >> .env
+        echo "MLFLOW_S3_ENDPOINT_URL=${{ secrets.MLFLOW_S3_ENDPOINT_URL }}" >> .env
+        echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+        echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+    
+    - name: Run Exercise 1 - Basic Attention
+      env:
+        MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+        MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
+        MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+        MLFLOW_S3_ENDPOINT_URL: ${{ secrets.MLFLOW_S3_ENDPOINT_URL }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        MLFLOW_S3_IGNORE_TLS: true
+        AWS_S3_ADDRESSING_STYLE: path
+        MODEL_NAME: ${{ env.MODEL_NAME }}
+      run: |
+        python src/attention_mechanism.py | tee exercise1_output.txt
+    
+    - name: Upload Exercise 1 Logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: exercise1-logs
+        path: exercise1_output.txt
+    
+    - name: Upload Attention Visualizations
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: attention-visualizations
+        path: attention_results/
+
+  exercise2-lstm-attention:
+    name: Exercise 2 - LSTM-Attention Seq2Seq
+    runs-on: ubuntu-latest
+    if: github.event.inputs.exercise == 'exercise2' || github.event.inputs.exercise == 'all' || github.event.inputs.exercise == ''
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Create .env file
+      run: |
+        echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env
+        echo "MLFLOW_TRACKING_USERNAME=${{ secrets.MLFLOW_TRACKING_USERNAME }}" >> .env
+        echo "MLFLOW_TRACKING_PASSWORD=${{ secrets.MLFLOW_TRACKING_PASSWORD }}" >> .env
+        echo "MODEL_NAME=${{ env.MODEL_NAME }}" >> .env
+        echo "MLFLOW_S3_ENDPOINT_URL=${{ secrets.MLFLOW_S3_ENDPOINT_URL }}" >> .env
+        echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+        echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+    
+    - name: Run Exercise 2 - LSTM-Attention
+      env:
+        MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+        MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
+        MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+        MLFLOW_S3_ENDPOINT_URL: ${{ secrets.MLFLOW_S3_ENDPOINT_URL }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        MLFLOW_S3_IGNORE_TLS: true
+        AWS_S3_ADDRESSING_STYLE: path
+        MODEL_NAME: ${{ env.MODEL_NAME }}
+      run: |
+        python src/lstm_attention_seq2seq.py | tee exercise2_output.txt
+    
+    - name: Upload Exercise 2 Logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: exercise2-logs
+        path: exercise2_output.txt
+    
+    - name: Upload Seq2Seq Visualizations
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: seq2seq-visualizations
+        path: seq2seq_results/
+
+  exercise3-tap-improvement:
+    name: Exercise 3 - Improved TAP
+    runs-on: ubuntu-latest
+    if: github.event.inputs.exercise == 'exercise3' || github.event.inputs.exercise == 'all' || github.event.inputs.exercise == ''
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Create .env file
+      run: |
+        echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env
+        echo "MLFLOW_TRACKING_USERNAME=${{ secrets.MLFLOW_TRACKING_USERNAME }}" >> .env
+        echo "MLFLOW_TRACKING_PASSWORD=${{ secrets.MLFLOW_TRACKING_PASSWORD }}" >> .env
+        echo "MODEL_NAME=${{ env.MODEL_NAME }}" >> .env
+        echo "MLFLOW_S3_ENDPOINT_URL=${{ secrets.MLFLOW_S3_ENDPOINT_URL }}" >> .env
+        echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+        echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+    
+    - name: Run Exercise 3 - Improved TAP
+      env:
+        MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+        MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
+        MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+        MLFLOW_S3_ENDPOINT_URL: ${{ secrets.MLFLOW_S3_ENDPOINT_URL }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        MLFLOW_S3_IGNORE_TLS: true
+        AWS_S3_ADDRESSING_STYLE: path
+        MODEL_NAME: ${{ env.MODEL_NAME }}
+      run: |
+        python src/tap_improvement.py | tee exercise3_output.txt
+    
+    - name: Upload Exercise 3 Logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: exercise3-logs
+        path: exercise3_output.txt
+
+  promote-best-model:
+    name: Auto-Promote Best Sequence Model
+    needs: [exercise1-basic-attention, exercise2-lstm-attention, exercise3-tap-improvement]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install MLflow
+      run: |
+        pip install mlflow python-dotenv boto3
+    
+    - name: Create .env file
+      run: |
+        echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env
+        echo "MLFLOW_TRACKING_USERNAME=${{ secrets.MLFLOW_TRACKING_USERNAME }}" >> .env
+        echo "MLFLOW_TRACKING_PASSWORD=${{ secrets.MLFLOW_TRACKING_PASSWORD }}" >> .env
+        echo "MODEL_NAME=${{ env.MODEL_NAME }}" >> .env
+        echo "MIN_ACCURACY=${{ secrets.MIN_ACCURACY || '0.75' }}" >> .env
+    
+    - name: Find and Promote Best Model
+      run: |
+        python -c "
+        import mlflow
+        from mlflow.tracking import MlflowClient
+        from config.mlflow_config import MLflowConfig
+        
+        MLflowConfig.setup_mlflow()
+        client = MlflowClient()
+        
+        experiments = ['TP5-Exercise1-BasicAttention', 'TP5-Exercise2-LSTM-Attention-Seq2Seq', 'TP5-Exercise3-ImprovedTAP']
+        best_run = None
+        best_metric = 0
+        
+        for exp_name in experiments:
+            try:
+                exp = client.get_experiment_by_name(exp_name)
+                if exp:
+                    # Try test_accuracy or test_mae depending on task
+                    for metric in ['test_accuracy', 'test_mae']:
+                        runs = client.search_runs(exp.experiment_id, order_by=[f'metrics.{metric} DESC'], max_results=1)
+                        if runs and len(runs[0].data.metrics) > 0:
+                            metric_value = runs[0].data.metrics.get(metric, 0)
+                            if metric == 'test_accuracy' and metric_value > best_metric:
+                                best_metric = metric_value
+                                best_run = runs[0]
+                                break
+            except:
+                pass
+        
+        if best_run and best_metric >= float('${{ secrets.MIN_ACCURACY }}' or 0.75):
+            print(f'Best model: {best_run.info.run_id} with metric: {best_metric:.4f}')
+            import subprocess
+            subprocess.run(['python', '-m', 'src.auto_promote', best_run.info.run_id])
+        else:
+            print(f'No model meets criteria')
+        "
+
+  summary:
+    name: Generate Training Summary
+    runs-on: ubuntu-latest
+    needs: [exercise1-basic-attention, exercise2-lstm-attention, exercise3-tap-improvement]
+    if: always()
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: logs/
+    
+    - name: Generate Summary
+      run: |
+        echo "# TP5 Sequence Modeling & Attention Summary" > summary.md
+        echo "" >> summary.md
+        echo "## Workflow Run: ${{ github.run_number }}" >> summary.md
+        echo "**Date**: $(date)" >> summary.md
+        echo "**Commit**: ${{ github.sha }}" >> summary.md
+        echo "" >> summary.md
+        
+        echo "## Results" >> summary.md
+        echo "" >> summary.md
+        
+        if [ -f "logs/exercise1-logs/exercise1_output.txt" ]; then
+          echo "### Exercise 1: Basic Attention (GRU)" >> summary.md
+          echo '```' >> summary.md
+          tail -40 logs/exercise1-logs/exercise1_output.txt >> summary.md
+          echo '```' >> summary.md
+          echo "" >> summary.md
+        fi
+        
+        if [ -f "logs/exercise2-logs/exercise2_output.txt" ]; then
+          echo "### Exercise 2: LSTM-Attention Seq2Seq" >> summary.md
+          echo '```' >> summary.md
+          tail -40 logs/exercise2-logs/exercise2_output.txt >> summary.md
+          echo '```' >> summary.md
+          echo "" >> summary.md
+        fi
+        
+        if [ -f "logs/exercise3-logs/exercise3_output.txt" ]; then
+          echo "### Exercise 3: Improved TAP Architecture" >> summary.md
+          echo '```' >> summary.md
+          tail -50 logs/exercise3-logs/exercise3_output.txt >> summary.md
+          echo '```' >> summary.md
+          echo "" >> summary.md
+        fi
+        
+        echo "## MLflow Tracking" >> summary.md
+        echo "View detailed results at: ${{ secrets.MLFLOW_TRACKING_URI }}" >> summary.md
+        echo "" >> summary.md
+        echo "### Experiments Created:" >> summary.md
+        echo "- TP5-Exercise1-BasicAttention" >> summary.md
+        echo "- TP5-Exercise2-LSTM-Attention-Seq2Seq" >> summary.md
+        echo "- TP5-Exercise3-ImprovedTAP" >> summary.md
+        
+        cat summary.md
+    
+    - name: Upload Summary Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: tp5-summary-report
+        path: summary.md
+    
+    - name: Comment PR with Results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const summary = fs.readFileSync('summary.md', 'utf8');
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: summary
+          });

@@ -1,0 +1,10 @@
+tensorflow
+numpy
+flask
+mlflow==2.10.2
+gunicorn
+python-dotenv
+scikit-learn
+boto3
+psycopg2-binary
+requests

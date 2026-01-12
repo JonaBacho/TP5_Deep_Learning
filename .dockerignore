@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# CI/CD
+.github/
+
+# Tests
+tests/
+*.pytest_cache/
+
+# Documentation
+*.md
+docs/
+
+# Data
+data/
+*.csv
+*.pkl
+
+# Logs
+*.log
+logs/
+
+# MLflow local
+mlruns/
+
+# Environment
+.env
+.env.local
