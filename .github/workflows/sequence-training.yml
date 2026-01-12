@@ -80,6 +80,7 @@ jobs:
         MLFLOW_S3_IGNORE_TLS: true
         AWS_S3_ADDRESSING_STYLE: path
         MODEL_NAME: ${{ env.MODEL_NAME }}
+        PYTHONPATH: .
       run: |
         python src/attention_mechanism.py | tee exercise1_output.txt
     

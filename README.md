@@ -1,6 +1,6 @@
 # 🧠 TP5: Sequence Modeling & Attention Mechanisms - MLOps Pipeline
 
-[![TP5 Training](https://github.com/JonaBacho/TP5_Deep_Learning/actions/workflows/tp5-sequence-training.yml/badge.svg)](https://github.com/JonaBacho/TP5_Deep_Learning/actions/workflows/tp5-sequence-training.yml)
+[![TP5 Training](https://github.com/JonaBacho/TP5_Deep_Learning/actions/workflows/sequence-training.yml/badge.svg)](https://github.com/JonaBacho/TP5_Deep_Learning/actions/workflows/sequence-training.yml)
 [![MLflow](https://img.shields.io/badge/MLflow-2.9.2-blue.svg)](https://mlflow.org/)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-orange.svg)](https://tensorflow.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
