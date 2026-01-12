@@ -10,7 +10,7 @@ on:
       - 'src/lstm_attention_seq2seq.py'
       - 'src/tap_improvement.py'
       - 'requirements.txt'
-      - '.github/workflows/tp5-sequence-training.yml'
+      - '.github/workflows/sequence-training.yml'
   pull_request:
     branches:
       - main
