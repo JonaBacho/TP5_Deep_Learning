@@ -263,8 +263,6 @@ def exercise_1_basic_attention():
             validation_split=0.2,
             verbose=1
         )
-
-        attention_weights = attention_model.predict(X_test)
         
         # Log metrics
         for epoch in range(len(history.history['loss'])):
@@ -275,7 +273,8 @@ def exercise_1_basic_attention():
         
         # Evaluation
         print("\nEvaluating on test set...")
-        predictions, attention_weights = model.predict(X_test)
+        predictions = model.predict(X_test)
+        attention_weights = attention_model.predict(X_test)
         
         test_loss = keras.losses.categorical_crossentropy(y_test_cat, predictions).numpy().mean()
         test_accuracy = (np.argmax(predictions, axis=1) == y_test).mean()
