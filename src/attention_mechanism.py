@@ -269,9 +269,9 @@ def exercise_1_basic_attention():
         # Log metrics
         for epoch in range(len(history.history['loss'])):
             mlflow.log_metric("train_loss", history.history['loss'][epoch], step=epoch)
-            mlflow.log_metric("train_accuracy", history.history['classification_output'][epoch], step=epoch)
+            mlflow.log_metric("train_accuracy", history.history['accuracy'][epoch], step=epoch)
             mlflow.log_metric("val_loss", history.history['val_loss'][epoch], step=epoch)
-            mlflow.log_metric("val_accuracy", history.history['classification_output'][epoch], step=epoch)
+            mlflow.log_metric("val_accuracy", history.history['val_accuracy'][epoch], step=epoch)
         
         # Evaluation
         print("\nEvaluating on test set...")
