@@ -158,8 +158,8 @@ def build_seq2seq_attention_model(input_len, output_len, lstm_units=64, attentio
         attention_weights_list.append(attention_weights)
     
     # Stack outputs
-    decoder_outputs = layers.Concatenate(axis=1)(
-    [tf.expand_dims(o, axis=1) for o in decoder_outputs])
+    combined = layers.Concatenate(axis=1)(decoder_outputs)
+    decoder_outputs = layers.Reshape((output_len, 1))(combined)
     
     model = keras.Model(
         inputs=[encoder_inputs, decoder_inputs],
