@@ -20,9 +20,15 @@ class BahdanauAttention(layers.Layer):
     
     def __init__(self, units, **kwargs):
         super(BahdanauAttention, self).__init__(**kwargs)
+        self.units = units
         self.W1 = layers.Dense(units)
         self.W2 = layers.Dense(units)
         self.V = layers.Dense(1)
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({"units": self.units})
+        return config
     
     def call(self, query, values):
         """
@@ -55,11 +61,18 @@ class BahdanauAttention(layers.Layer):
 class Encoder(keras.Model):
     """Encoder Bi-directional LSTM"""
     
-    def __init__(self, lstm_units):
-        super(Encoder, self).__init__()
+    def __init__(self, lstm_units, **kwargs):
+        super(Encoder, self).__init__(**kwargs)
+        self.lstm_units = lstm_units
         self.lstm = layers.Bidirectional(
             layers.LSTM(lstm_units, return_sequences=True, return_state=True)
         )
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({"lstm_units": self.lstm_units})
+        return config
+
     
     def call(self, x):
         output, forward_h, forward_c, backward_h, backward_c = self.lstm(x)
@@ -74,11 +87,21 @@ class Encoder(keras.Model):
 class Decoder(keras.Model):
     """Decoder LSTM avec Cross-Attention"""
     
-    def __init__(self, lstm_units, attention_units):
-        super(Decoder, self).__init__()
+    def __init__(self, lstm_units, attention_units, **kwargs):
+        super(Decoder, self).__init__(**kwargs)
+        self.lstm_units = lstm_units         
+        self.attention_units = attention_units
         self.lstm = layers.LSTM(lstm_units * 2, return_sequences=True, return_state=True)
         self.attention = BahdanauAttention(attention_units)
         self.fc = layers.Dense(1)
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            "lstm_units": self.lstm_units,
+            "attention_units": self.attention_units,
+        })
+        return config
     
     def call(self, x, hidden, encoder_output):
         # x shape: (batch_size, 1, input_dim)
@@ -169,10 +192,13 @@ def build_seq2seq_attention_model(input_len, output_len, lstm_units=64, attentio
     return model, encoder, decoder
 
 
-def calculate_attention_span(attention_weights, threshold=0.05):
+def calculate_attention_span(attention_weights, threshold=0.02):
     """
     Calcule l'attention span: combien de time steps ont des poids significatifs
     """
+    if threshold is None:
+        threshold = 1.0 / attention_weights.shape[-1]
+
     significant_weights = attention_weights > threshold
     attention_span = significant_weights.sum(axis=-1).mean()
     
